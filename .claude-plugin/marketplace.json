@@ -1,0 +1,19 @@
+{
+  "name": "diegohosilver",
+  "owner": {
+    "name": "Diego Silvera de Souza",
+    "github": "diegohosilver"
+  },
+  "metadata": {
+    "description": "Plugins by diegohosilver",
+    "homepage": "https://github.com/diegohosilver/smart-model-router"
+  },
+  "plugins": [
+    {
+      "name": "smart-model-router",
+      "version": "1.0.0",
+      "source": ".",
+      "description": "Automatically routes prompts to the most cost-efficient Anthropic model (Haiku/Sonnet/Opus) based on task type, complexity, and prompt characteristics."
+    }
+  ]
+}
