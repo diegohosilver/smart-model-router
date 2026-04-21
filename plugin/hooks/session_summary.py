@@ -76,7 +76,7 @@ def find_latest_transcript() -> str:
 
 def parse_usage(transcript_path: str) -> dict:
     usage = defaultdict(lambda: defaultdict(int))
-    with open(transcript_path) as f:
+    with open(transcript_path, encoding="utf-8", errors="replace") as f:
         for line in f:
             line = line.strip()
             if not line:
@@ -106,7 +106,7 @@ def parse_agent_usage(session_id: str) -> dict:
     usage = defaultdict(lambda: defaultdict(int))
     if not sidecar.exists():
         return usage
-    with open(sidecar) as f:
+    with open(sidecar, encoding="utf-8", errors="replace") as f:
         for line in f:
             line = line.strip()
             if not line:

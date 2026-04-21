@@ -1,7 +1,7 @@
 {
   "name": "smart-model-router",
   "description": "Automatically routes prompts to the most cost-efficient Anthropic model (Haiku/Sonnet/Opus) based on task type, complexity, and prompt characteristics.",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": {
     "name": "Diego Silvera de Souza",
     "github": "diegohosilver"

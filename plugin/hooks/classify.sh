@@ -56,6 +56,16 @@ if [[ -z "$TIER" ]]; then
   fi
 fi
 
+# Haiku: search/find/grep anywhere in prompt (no implementation keywords)
+if [[ -z "$TIER" ]]; then
+  if echo "$PROMPT_LOWER" | grep -qE '(search|find|grep|look for|look up|locate|where is|which file|list all|show all)'; then
+    if ! echo "$PROMPT_LOWER" | grep -qE 'fix |debug|implement|build|create|write|refactor|test|deploy|migrate|add (a|an) |update |analyz|plan|review|investigat|and (fix|update|change|modify|edit|refactor)'; then
+      TIER="haiku"
+      REASON="keyword:search/find"
+    fi
+  fi
+fi
+
 # Haiku: very short prompts (≤60 chars) with no coding or analysis keywords
 if [[ -z "$TIER" && $PROMPT_LEN -le 60 ]]; then
   if ! echo "$PROMPT_LOWER" | grep -qE 'fix |debug|implement|build|create|write|refactor|test|deploy|migrate|add (a|an) |update |analyz|plan|review|investigat'; then
