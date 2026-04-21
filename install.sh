@@ -77,7 +77,7 @@ else:
     registry.setdefault("plugins", {})[plugin_key] = [{
         "scope": "user",
         "installPath": install_path,
-        "version": "1.0.2",
+        "version": "1.0.3",
         "installedAt": datetime.now(timezone.utc).isoformat(),
         "lastUpdated": datetime.now(timezone.utc).isoformat()
     }]
