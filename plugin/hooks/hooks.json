@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/classify.sh\""
+            "command": "python3 -c \"import os,glob,subprocess; scripts=glob.glob(os.path.join(os.environ.get('CLAUDE_CONFIG_DIR',os.path.expanduser('~/.claude')),'plugins/cache/*/smart-model-router/*/hooks/classify.sh')); subprocess.run(['bash',scripts[0]]) if scripts else None\""
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/track_agent.py\""
+            "command": "python3 -c \"import os,glob,subprocess; scripts=glob.glob(os.path.join(os.environ.get('CLAUDE_CONFIG_DIR',os.path.expanduser('~/.claude')),'plugins/cache/*/smart-model-router/*/hooks/track_agent.py')); subprocess.run(['python3',scripts[0]]) if scripts else None\""
           }
         ]
       }

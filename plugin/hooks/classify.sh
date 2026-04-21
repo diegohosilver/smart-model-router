@@ -28,7 +28,7 @@ print(data.get('prompt') or data.get('user_prompt') or data.get('message') or ''
 " 2>/dev/null || echo "")
 
 if [[ -z "$PROMPT" ]]; then
-  echo '{"additionalContext": ""}'
+  echo '{"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": ""}}'
   exit 0
 fi
 
@@ -132,5 +132,5 @@ import json
 model = '$MODEL'
 reason = '$REASON'
 tag = f'[ROUTE:{model.upper()}] (classifier: {reason})'
-print(json.dumps({'additionalContext': tag}))
+print(json.dumps({'hookSpecificOutput': {'hookEventName': 'UserPromptSubmit', 'additionalContext': tag}}))
 "
