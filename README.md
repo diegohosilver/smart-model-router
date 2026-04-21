@@ -7,9 +7,9 @@ A Claude Code plugin that automatically routes every prompt to the most cost-eff
 Every prompt passes through a **hybrid classifier** before Claude processes it:
 
 ```
-Prompt submitted
-      │
-      ▼
+      Prompt submitted
+            │
+            ▼
 ┌─────────────────────────────┐
 │  Rule Pass 1: Opus keywords │  → opus   (investigate, analyze, audit, plan…)
 └────────────┬────────────────┘
@@ -65,7 +65,8 @@ Add the marketplace to your `settings.json` (or `~/.claude-dexterity/settings.js
 Then install:
 
 ```bash
-claude plugin install smart-model-router@diegohosilver
+/plugin marketplace add diegohosilver/smart-model-router
+/plugin install smart-model-router
 ```
 
 ### Option B — install.sh script
