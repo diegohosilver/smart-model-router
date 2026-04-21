@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os,glob,subprocess; scripts=glob.glob(os.path.join(os.environ.get('CLAUDE_CONFIG_DIR',os.path.expanduser('~/.claude')),'plugins/cache/*/smart-model-router/*/hooks/session-init.sh')); subprocess.run(['bash',scripts[0]]) if scripts else None\"",
+            "command": "node -e \"const p=require('path'),f=require('fs'),o=require('os'),cp=require('child_process');const b=p.join(process.env.CLAUDE_CONFIG_DIR||p.join(o.homedir(),'.claude'),'plugins','cache');let s=null;try{for(const x of f.readdirSync(b)){const pd=p.join(b,x,'smart-model-router');if(!f.existsSync(pd))continue;for(const v of f.readdirSync(pd)){const fp=p.join(pd,v,'hooks','session-init.js');if(f.existsSync(fp)){s=fp;break;}}if(s)break;}}catch(e){}if(s)cp.spawnSync('node',[s],{stdio:'inherit'});\"",
             "timeout": 5,
             "statusMessage": "Loading smart-model-router routing protocol..."
           }
@@ -19,7 +19,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os,glob,subprocess; scripts=glob.glob(os.path.join(os.environ.get('CLAUDE_CONFIG_DIR',os.path.expanduser('~/.claude')),'plugins/cache/*/smart-model-router/*/hooks/classify.sh')); subprocess.run(['bash',scripts[0]]) if scripts else None\""
+            "command": "node -e \"const p=require('path'),f=require('fs'),o=require('os'),cp=require('child_process');const b=p.join(process.env.CLAUDE_CONFIG_DIR||p.join(o.homedir(),'.claude'),'plugins','cache');let s=null;try{for(const x of f.readdirSync(b)){const pd=p.join(b,x,'smart-model-router');if(!f.existsSync(pd))continue;for(const v of f.readdirSync(pd)){const fp=p.join(pd,v,'hooks','classify.js');if(f.existsSync(fp)){s=fp;break;}}if(s)break;}}catch(e){}if(s)cp.spawnSync('node',[s],{stdio:'inherit'});\""
           }
         ]
       }
@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import os,glob,subprocess; scripts=glob.glob(os.path.join(os.environ.get('CLAUDE_CONFIG_DIR',os.path.expanduser('~/.claude')),'plugins/cache/*/smart-model-router/*/hooks/track_agent.py')); subprocess.run(['python3',scripts[0]]) if scripts else None\""
+            "command": "node -e \"const p=require('path'),f=require('fs'),o=require('os'),cp=require('child_process');const b=p.join(process.env.CLAUDE_CONFIG_DIR||p.join(o.homedir(),'.claude'),'plugins','cache');let s=null;try{for(const x of f.readdirSync(b)){const pd=p.join(b,x,'smart-model-router');if(!f.existsSync(pd))continue;for(const v of f.readdirSync(pd)){const fp=p.join(pd,v,'hooks','track_agent.js');if(f.existsSync(fp)){s=fp;break;}}if(s)break;}}catch(e){}if(s)cp.spawnSync('node',[s],{stdio:'inherit'});\""
           }
         ]
       }
