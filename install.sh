@@ -45,6 +45,7 @@ mkdir -p "$PLUGINS_DIR/hooks" "$PLUGINS_DIR/skills/model-status" "$PLUGINS_DIR/.
 
 cp "$SCRIPT_DIR/plugin/hooks/classify.sh"          "$PLUGINS_DIR/hooks/classify.sh"
 cp "$SCRIPT_DIR/plugin/hooks/session_summary.py"   "$PLUGINS_DIR/hooks/session_summary.py"
+cp "$SCRIPT_DIR/plugin/hooks/track_agent.py"       "$PLUGINS_DIR/hooks/track_agent.py"
 cp "$SCRIPT_DIR/plugin/hooks/hooks.json"           "$PLUGINS_DIR/hooks/hooks.json"
 cp "$SCRIPT_DIR/plugin/.claude-plugin/plugin.json" "$PLUGINS_DIR/.claude-plugin/plugin.json"
 cp "$SCRIPT_DIR/plugin/CLAUDE.md"                  "$PLUGINS_DIR/CLAUDE.md"

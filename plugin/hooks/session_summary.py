@@ -24,6 +24,8 @@ PRICING = {
     "opus":   (15.00, 75.00, 18.75,  1.50),
 }
 
+
+
 def model_tier(model_id: str) -> str:
     m = (model_id or "").lower()
     if "haiku"  in m: return "haiku"
@@ -101,12 +103,37 @@ def parse_usage(transcript_path: str) -> dict:
             usage[tier]["turns"]       += 1
     return usage
 
-def build_summary(usage: dict) -> str:
+def parse_agent_usage(session_id: str) -> dict:
+    """Read per-session agent sidecar; return {tier: {input, output, cache_write, cache_read, turns}}."""
+    sidecar = Path.home() / ".cache" / "smart-model-router" / f"agents_{session_id}.jsonl"
+    usage = defaultdict(lambda: defaultdict(int))
+    if not sidecar.exists():
+        return usage
+    with open(sidecar) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            tier = model_tier(rec.get("model", ""))
+            usage[tier]["input"]       += rec.get("input", 0)
+            usage[tier]["output"]      += rec.get("output", 0)
+            usage[tier]["cache_write"] += rec.get("cache_write", 0)
+            usage[tier]["cache_read"]  += rec.get("cache_read", 0)
+            usage[tier]["turns"]       += 1
+    return usage
+
+def build_summary(main_usage: dict, agent_usage: dict) -> str:
     TIER_ORDER  = ["haiku", "sonnet", "opus"]
     TIER_LABELS = {"haiku": "Haiku", "sonnet": "Sonnet", "opus": "Opus"}
 
+    all_tiers = set(main_usage) | set(agent_usage)
+
     W = [14, 10, 10, 12]
-    sep  = "-" * (sum(W) + 6)
+    sep   = "-" * (sum(W) + 6)
     thick = "=" * (sum(W) + 6)
 
     rows = [thick, " Token Usage — Smart Model Router", thick]
@@ -120,30 +147,46 @@ def build_summary(usage: dict) -> str:
 
     total_input = total_output = 0
     total_cost  = 0.0
-    total_turns = 0
+    total_main_turns = total_agent_turns = 0
 
     for tier in TIER_ORDER:
-        if tier not in usage:
+        if tier not in all_tiers:
             continue
-        u     = usage[tier]
-        inp   = u["input"] + u["cache_write"] + u["cache_read"]
-        out   = u["output"]
-        cost  = est_cost(tier, u)
-        turns = u["turns"]
-        total_input  += inp
-        total_output += out
-        total_cost   += cost
-        total_turns  += turns
+
+        mu = main_usage.get(tier, defaultdict(int))
+        au = agent_usage.get(tier, defaultdict(int))
+
+        inp  = mu["input"] + mu["cache_write"] + mu["cache_read"] + au["input"]
+        out  = mu["output"] + au["output"]
+        cost = est_cost(tier, mu) + est_cost(tier, au)
+        main_turns  = mu["turns"]
+        agent_turns = au["turns"]
+
+        total_input       += inp
+        total_output      += out
+        total_cost        += cost
+        total_main_turns  += main_turns
+        total_agent_turns += agent_turns
+
         label = TIER_LABELS.get(tier, tier)
+
+        parts = []
+        if main_turns:
+            parts.append(f"{main_turns} turn{'s' if main_turns != 1 else ''}")
+        if agent_turns:
+            parts.append(f"{agent_turns} subagent call{'s' if agent_turns != 1 else ''}")
+        turn_str = ", ".join(parts) if parts else "0 turns"
+
         rows.append(
             f"  {label:<{W[0]}}"
             f"{fmt_tokens(inp):>{W[1]}}"
             f"{fmt_tokens(out):>{W[2]}}"
             f"{fmt_cost(cost):>{W[3]}}"
-            f"  ({turns} turn{'s' if turns != 1 else ''})"
+            f"  ({turn_str})"
         )
 
     rows.append(sep)
+    total_turns = total_main_turns + total_agent_turns
     rows.append(
         f"  {'TOTAL':<{W[0]}}"
         f"{fmt_tokens(total_input):>{W[1]}}"
@@ -153,13 +196,18 @@ def build_summary(usage: dict) -> str:
     )
     rows.append(thick)
 
-    if len(usage) > 1:
-        parts = [
-            f"{usage[t]['turns']} {TIER_LABELS[t]}"
-            for t in TIER_ORDER if t in usage and usage[t]["turns"]
-        ]
-        rows.append(f"  Routed: {', '.join(parts)}")
-        rows.append(thick)
+    routed_tiers = [t for t in TIER_ORDER if t in all_tiers]
+    if len(routed_tiers) > 1:
+        parts = []
+        for t in routed_tiers:
+            mu = main_usage.get(t, defaultdict(int))
+            au = agent_usage.get(t, defaultdict(int))
+            n  = mu["turns"] + au["turns"]
+            if n:
+                parts.append(f"{n} {TIER_LABELS[t]}")
+        if parts:
+            rows.append(f"  Routed: {', '.join(parts)}")
+            rows.append(thick)
 
     return "\n".join(rows)
 
@@ -184,12 +232,15 @@ def main():
         print("No session transcript found.", file=sys.stderr)
         sys.exit(1)
 
-    usage = parse_usage(transcript_path)
-    if not usage:
+    session_id  = Path(transcript_path).stem
+    main_usage  = parse_usage(transcript_path)
+    agent_usage = parse_agent_usage(session_id)
+
+    if not main_usage and not agent_usage:
         print("No token usage recorded yet.", file=sys.stderr)
         sys.exit(0)
 
-    print(build_summary(usage))
+    print(build_summary(main_usage, agent_usage))
 
 if __name__ == "__main__":
     main()
