@@ -14,11 +14,4 @@ if [[ ! -f "$CLAUDE_MD" ]]; then
   exit 0
 fi
 
-CONTENT=$(cat "$CLAUDE_MD")
-
-python3 -c "
-import json, sys
-content = sys.stdin.read().strip()
-if content:
-    print(json.dumps({'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': content}}))
-" <<< "$CONTENT"
+cat "$CLAUDE_MD"
