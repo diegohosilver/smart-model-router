@@ -141,7 +141,7 @@ fi
 # ── Step 4: Remove routing section from CLAUDE.md ────────────────────────────
 echo "[4/4] Removing routing instructions from $CLAUDE_MD_FILE"
 
-START_MARKER="## Smart Model Router — Routing Protocol"
+START_MARKER="# Smart Model Router — Routing Protocol"
 
 if [[ ! -f "$CLAUDE_MD_FILE" ]]; then
     echo "    CLAUDE.md not found — skipping."
