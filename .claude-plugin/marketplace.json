@@ -12,7 +12,7 @@
     {
       "name": "smart-model-router",
       "version": "1.0.0",
-      "source": ".",
+      "source": "./plugin",
       "description": "Automatically routes prompts to the most cost-efficient Anthropic model (Haiku/Sonnet/Opus) based on task type, complexity, and prompt characteristics."
     }
   ]

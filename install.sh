@@ -43,12 +43,12 @@ echo "[1/4] Copying plugin files → $PLUGINS_DIR"
 
 mkdir -p "$PLUGINS_DIR/hooks" "$PLUGINS_DIR/skills/model-status" "$PLUGINS_DIR/.claude-plugin"
 
-cp "$SCRIPT_DIR/hooks/classify.sh"          "$PLUGINS_DIR/hooks/classify.sh"
-cp "$SCRIPT_DIR/hooks/session_summary.py"   "$PLUGINS_DIR/hooks/session_summary.py"
-cp "$SCRIPT_DIR/hooks/hooks.json"           "$PLUGINS_DIR/hooks/hooks.json"
-cp "$SCRIPT_DIR/.claude-plugin/plugin.json" "$PLUGINS_DIR/.claude-plugin/plugin.json"
-cp "$SCRIPT_DIR/CLAUDE.md"                  "$PLUGINS_DIR/CLAUDE.md"
-cp "$SCRIPT_DIR/skills/model-status/SKILL.md" "$PLUGINS_DIR/skills/model-status/SKILL.md"
+cp "$SCRIPT_DIR/plugin/hooks/classify.sh"          "$PLUGINS_DIR/hooks/classify.sh"
+cp "$SCRIPT_DIR/plugin/hooks/session_summary.py"   "$PLUGINS_DIR/hooks/session_summary.py"
+cp "$SCRIPT_DIR/plugin/hooks/hooks.json"           "$PLUGINS_DIR/hooks/hooks.json"
+cp "$SCRIPT_DIR/plugin/.claude-plugin/plugin.json" "$PLUGINS_DIR/.claude-plugin/plugin.json"
+cp "$SCRIPT_DIR/plugin/CLAUDE.md"                  "$PLUGINS_DIR/CLAUDE.md"
+cp "$SCRIPT_DIR/plugin/skills/model-status/SKILL.md" "$PLUGINS_DIR/skills/model-status/SKILL.md"
 
 chmod +x "$PLUGINS_DIR/hooks/classify.sh"
 echo "    Done."
@@ -116,7 +116,7 @@ PYEOF
 # ── Step 3: Register UserPromptSubmit hook in settings.json ───────────────────
 echo "[3/4] Registering hook in $SETTINGS_FILE"
 
-HOOK_COMMAND="bash \"$SCRIPT_DIR/hooks/classify.sh\""
+HOOK_COMMAND="bash \"$SCRIPT_DIR/plugin/hooks/classify.sh\""
 
 SETTINGS_FILE="$SETTINGS_FILE" HOOK_COMMAND="$HOOK_COMMAND" python3 - <<PYEOF
 import json, os, sys
@@ -166,7 +166,7 @@ if [[ -f "$CLAUDE_MD_FILE" ]] && grep -qF "$MARKER" "$CLAUDE_MD_FILE"; then
     SCRIPT_DIR="$SCRIPT_DIR" CLAUDE_MD_FILE="$CLAUDE_MD_FILE" python3 - <<PYEOF
 import os
 path     = os.environ["CLAUDE_MD_FILE"]
-new_block = open(os.environ["SCRIPT_DIR"] + "/CLAUDE.md").read().strip()
+new_block = open(os.environ["SCRIPT_DIR"] + "/plugin/CLAUDE.md").read().strip()
 marker   = "# Smart Model Router — Routing Protocol"
 
 with open(path) as f:
@@ -181,7 +181,7 @@ print("    Updated existing section.")
 PYEOF
 else
     echo "" >> "$CLAUDE_MD_FILE"
-    cat "$SCRIPT_DIR/CLAUDE.md" >> "$CLAUDE_MD_FILE"
+    cat "$SCRIPT_DIR/plugin/CLAUDE.md" >> "$CLAUDE_MD_FILE"
     echo "    Injected."
 fi
 

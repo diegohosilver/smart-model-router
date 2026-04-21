@@ -11,23 +11,24 @@ Prompt submitted
       │
       ▼
 ┌─────────────────────────────┐
-│  Rule Pass 1: hard keywords │  → haiku  (lookup/search/list)
-│                             │  → opus   (architecture/security)
+│  Rule Pass 1: Opus keywords │  → opus   (investigate, analyze, audit, plan…)
 └────────────┬────────────────┘
-             │ ambiguous
+             │ no match
              ▼
 ┌─────────────────────────────┐
-│  Rule Pass 2: code signals  │  → sonnet  (single-file coding)
-│  + prompt length            │  → opus    (≥800 chars)
-│                             │  → haiku   (≤60 chars, non-code)
+│  Rule Pass 2: Haiku keywords│  → haiku  (list, search, ls, cat, ≤60 chars)
+└────────────┬────────────────┘
+             │ no match
+             ▼
+┌─────────────────────────────┐
+│  Rule Pass 3: Sonnet keywords│ → sonnet  (fix, debug, implement, refactor…)
 └────────────┬────────────────┘
              │ still ambiguous
              ▼
 ┌─────────────────────────────┐
 │  AI fallback (Haiku call)   │  → haiku / sonnet / opus
-│  (requires ANTHROPIC_API_KEY│
 └────────────┬────────────────┘
-             │ no API key
+             │ fallback
              ▼
          sonnet (default)
 ```
@@ -38,100 +39,49 @@ The classifier injects a `[ROUTE:MODEL]` tag via `additionalContext`. `CLAUDE.md
 
 | Tier | Model | Typical tasks |
 |------|-------|--------------|
-| 🟢 **Haiku** | `claude-haiku-4-5` | `ls`, `grep`, `cat`, "what is X", short lookups, file searches |
-| 🟡 **Sonnet** | `claude-sonnet-4-6` | Fix bugs, write tests, single-file edits, debugging, moderate tasks |
-| 🔴 **Opus** | `claude-opus-4-6` | Architecture, large refactors, security reviews, complex multi-step plans |
+| 🟢 **Haiku** | `claude-haiku` | `ls`, `grep`, `cat`, "what is X", short lookups, file searches |
+| 🟡 **Sonnet** | `claude-sonnet` | Fix bugs, write tests, edits, debugging, refactoring, implementation |
+| 🔴 **Opus** | `claude-opus` | Investigation, root cause analysis, audits, design docs, planning |
 
 ## Installation
 
-### Option A — Project-level (one project)
+### Option A — Claude Code plugin marketplace (recommended)
 
-```bash
-# Copy plugin into your project
-cp -r smart-model-router /your/project/.claude/plugins/
-
-# Add to .claude/settings.json in your project
-```
-
-Then add to your project's `.claude/settings.json`:
+Add the marketplace to your `settings.json` (or `~/.claude-dexterity/settings.json` if using a custom profile):
 
 ```json
 {
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/plugins/smart-model-router/hooks/classify.sh"
-          }
-        ]
+  "extraKnownMarketplaces": {
+    "diegohosilver": {
+      "source": {
+        "source": "github",
+        "repo": "diegohosilver/smart-model-router"
       }
-    ]
+    }
   }
 }
 ```
 
-### Option B — Global (all projects)
+Then install:
 
 ```bash
-# Copy plugin globally
-cp -r smart-model-router ~/.claude/plugins/
-
-# Add to ~/.claude/settings.json
+claude plugin install smart-model-router@diegohosilver
 ```
 
-Then add to `~/.claude/settings.json`:
-
-```json
-{
-  "hooks": {
-    "UserPromptSubmit": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ~/.claude/plugins/smart-model-router/hooks/classify.sh"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-Also append the routing protocol to your global `~/.claude/CLAUDE.md` (or create it):
+### Option B — install.sh script
 
 ```bash
-cat smart-model-router/CLAUDE.md >> ~/.claude/CLAUDE.md
+git clone https://github.com/diegohosilver/smart-model-router
+cd smart-model-router
+
+# Install to default ~/.claude profile
+bash install.sh
+
+# Or to a custom profile
+bash install.sh --profile ~/.claude-dexterity
 ```
 
-### Option C — Test locally first (recommended)
-
-```bash
-claude --plugin-dir ./smart-model-router
-```
-
-## Optional: AI fallback classifier
-
-When the rule-based pass is ambiguous, the classifier spawns `claude -p` as a headless subprocess — a single-turn Haiku call that uses your **existing subscription session** (Pro, Max, Team, or Enterprise). No `ANTHROPIC_API_KEY` needed.
-
-This adds ~200–400ms latency on ambiguous prompts but improves routing accuracy for edge cases. It's completely automatic as long as the `claude` CLI is in your `PATH` (which it is if Claude Code is installed).
-
-## Manual override
-
-You can always override routing for a session:
-
-```
-/model haiku    — force Haiku
-/model sonnet   — force Sonnet
-/model opus     — force Opus
-/model default  — restore default
-```
-
-Or inline in your prompt: "use opus to…" / "use haiku to…"
+Restart Claude Code (or start a new session) to activate the hook.
 
 ## Check routing status
 
@@ -139,22 +89,35 @@ Or inline in your prompt: "use opus to…" / "use haiku to…"
 /smart-model-router:model-status
 ```
 
+## Manual override
+
+Say "use haiku/sonnet/opus" in your prompt to override routing for that turn.
+
 ## Testing the classifier directly
 
 ```bash
-echo '{"prompt": "what files are in src/"}' | bash hooks/classify.sh
+echo '{"prompt": "list the files in src/"}' | bash plugin/hooks/classify.sh
 # → {"additionalContext": "[ROUTE:HAIKU] (classifier: keyword:lookup/search)"}
 
-echo '{"prompt": "refactor the entire authentication system to use JWT"}' | bash hooks/classify.sh
-# → {"additionalContext": "[ROUTE:OPUS] (classifier: keyword:architecture/deep-reasoning)"}
+echo '{"prompt": "fix the null pointer in user.service.ts"}' | bash plugin/hooks/classify.sh
+# → {"additionalContext": "[ROUTE:SONNET] (classifier: keyword:coding/implementation)"}
 
-echo '{"prompt": "fix the null pointer in user.service.ts"}' | bash hooks/classify.sh
-# → {"additionalContext": "[ROUTE:SONNET] (classifier: keyword:coding)"}
+echo '{"prompt": "investigate why the auth service is leaking memory"}' | bash plugin/hooks/classify.sh
+# → {"additionalContext": "[ROUTE:OPUS] (classifier: keyword:investigation/analysis/planning)"}
+```
+
+## Uninstall
+
+```bash
+bash uninstall.sh
+
+# Or for a custom profile
+bash uninstall.sh --profile ~/.claude-dexterity
 ```
 
 ## Estimated savings
 
 | Mix | Without router | With router | Savings |
 |-----|---------------|-------------|---------|
-| 50% lookup, 40% coding, 10% architecture | 100% Sonnet price | ~35% Sonnet + 50% Haiku + 15% Opus | ~55% |
-| 30% lookup, 60% coding, 10% architecture | 100% Opus price | ~25% Haiku + 65% Sonnet + 10% Opus | ~75% |
+| 50% lookup, 40% coding, 10% analysis | 100% Sonnet price | ~50% Haiku + 40% Sonnet + 10% Opus | ~55% |
+| 30% lookup, 60% coding, 10% analysis | 100% Opus price | ~30% Haiku + 60% Sonnet + 10% Opus | ~75% |
