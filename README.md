@@ -47,22 +47,7 @@ The classifier injects a `[ROUTE:MODEL]` tag via `additionalContext`. `CLAUDE.md
 
 ### Option A — Claude Code plugin marketplace (recommended)
 
-Add the marketplace to your `settings.json` (or `~/.claude-dexterity/settings.json` if using a custom profile):
-
-```json
-{
-  "extraKnownMarketplaces": {
-    "diegohosilver": {
-      "source": {
-        "source": "github",
-        "repo": "diegohosilver/smart-model-router"
-      }
-    }
-  }
-}
-```
-
-Then install:
+Launch claude, add the marketplace and install the plugin:
 
 ```bash
 /plugin marketplace add diegohosilver/smart-model-router
@@ -79,7 +64,7 @@ cd smart-model-router
 bash install.sh
 
 # Or to a custom profile
-bash install.sh --profile ~/.claude-dexterity
+bash install.sh --profile ~/.claude-personal
 ```
 
 Restart Claude Code (or start a new session) to activate the hook.
@@ -113,7 +98,7 @@ echo '{"prompt": "investigate why the auth service is leaking memory"}' | bash p
 bash uninstall.sh
 
 # Or for a custom profile
-bash uninstall.sh --profile ~/.claude-dexterity
+bash uninstall.sh --profile ~/.claude-personal
 ```
 
 ## Estimated savings

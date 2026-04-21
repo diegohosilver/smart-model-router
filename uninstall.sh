@@ -4,9 +4,7 @@
 # Removes the plugin files, hook registration, and CLAUDE.md section.
 #
 # Usage:
-#   bash uninstall.sh                          # uninstalls from ~/.claude
-#   bash uninstall.sh --profile ~/.claude-dexterity
-#   bash uninstall.sh -p ~/.claude-dexterity
+#   bash uninstall.sh
 
 set -euo pipefail
 

@@ -57,11 +57,8 @@ def est_cost(tier, usage):
 def find_latest_transcript() -> str:
     """Return the most recently modified session JSONL across known profile dirs."""
     home = Path.home()
-    search_roots = [
-        home / ".claude" / "projects",
-        home / ".claude-dexterity" / "projects",
-        home / ".claude-personal" / "projects",
-    ]
+    config_dir = os.environ.get("CLAUDE_CONFIG_DIR", str(home / ".claude"))
+    search_roots = [Path(config_dir) / "projects"]
     best = None
     best_mtime = 0.0
     for root in search_roots:

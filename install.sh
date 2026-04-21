@@ -4,9 +4,7 @@
 # Idempotent installer. Safe to run multiple times.
 #
 # Usage:
-#   bash install.sh                          # installs to ~/.claude
-#   bash install.sh --profile ~/.claude-dexterity
-#   bash install.sh -p ~/.claude-dexterity
+#   bash install.sh
 
 set -euo pipefail
 
@@ -79,7 +77,7 @@ else:
     registry.setdefault("plugins", {})[plugin_key] = [{
         "scope": "user",
         "installPath": install_path,
-        "version": "1.0.1",
+        "version": "1.0.2",
         "installedAt": datetime.now(timezone.utc).isoformat(),
         "lastUpdated": datetime.now(timezone.utc).isoformat()
     }]
